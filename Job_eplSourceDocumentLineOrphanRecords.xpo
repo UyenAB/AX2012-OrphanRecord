@@ -1,0 +1,71 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: eplSourceDocumentLineOrphanRecords unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #eplSourceDocumentLineOrphanRecords
+    #/*Exportfile for AOT version 1.0 or later
+    #Formatversion: 1
+    #
+    #***Element: JOB
+    #
+    #; Microsoft Dynamics AX Job: eplSourceDocumentLineOrphanRecords unloaded
+    #; --------------------------------------------------------------------------------
+    #  JOBVERSION 1
+    #
+    #  SOURCE #eplSourceDocumentLineOrphanRecords
+    #    CAS-07888-G6F1R7 -->*/
+    #    static void eplSourceDocumentLineOrphanRecords(Args _args)
+    #    {
+    #        SourceDocumentLine  sourceDocumentLine;
+    #        PurchLine           purchLine;
+    #        PurchTable          purchTable;
+    #        int                 cnt;
+    #
+    #        select count(RecId) from sourceDocumentLine
+    #        where  sourceDocumentLine.AccountingStatus  == SourceDocumentLineAccountingStatus::Draft
+    #           && sourceDocumentLine.TypeEnumName       == "SourceDocumentLine_VendorInvoice"
+    #        join  purchLine
+    #        where purchLine.SourceDocumentLine          == sourceDocumentLine.ParentSourceDocumentLine
+    #        join  purchTable
+    #         where purchTable.PurchId                    == purchLine.PurchId
+    #           && purchTable.DocumentState              == VersioningDocumentState::Approved
+    #           && purchTable.PurchStatus                == PurchStatus::Backorder;
+    #
+    #        info(strFmt("total (%1)",sourceDocumentLine.RecId));
+    #
+    #        ttsBegin;
+    #        while select forUpdate sourceDocumentLine
+    #        where  sourceDocumentLine.AccountingStatus  == SourceDocumentLineAccountingStatus::Draft
+    #           && sourceDocumentLine.TypeEnumName       == "SourceDocumentLine_VendorInvoice"
+    #        join  purchLine
+    #        where purchLine.SourceDocumentLine          == sourceDocumentLine.ParentSourceDocumentLine
+    #        join  purchTable
+    #        where purchTable.PurchId                    == purchLine.PurchId
+    #           && purchTable.DocumentState              == VersioningDocumentState::Approved
+    #           && purchTable.PurchStatus                == PurchStatus::Backorder
+    #        {
+    #            sourceDocumentLine.delete();
+    #            cnt++;
+    #        }
+    #        ttsCommit;
+    #        info(strFmt('total records deleted %1',cnt));
+    #
+    #    }
+    #    /*CAS-07888-G6F1R7 <--
+    #  ENDSOURCE
+    #  PROPERTIES
+    #    Origin              #{71C76CE0-03C1-4D48-A016-577C47920036}
+    #  ENDPROPERTIES*/
+    #
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{5AC7BBC7-8BCB-4CA7-A566-CCADD7AD83AA}
+  ENDPROPERTIES
+  
+
+***Element: END
