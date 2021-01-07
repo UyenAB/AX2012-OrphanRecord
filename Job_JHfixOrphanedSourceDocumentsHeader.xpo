@@ -1,0 +1,63 @@
+﻿Exportfile for AOT version 1.0 or later
+Formatversion: 1
+
+***Element: JOB
+
+; Microsoft Dynamics AX Job: JHfixOrphanedSourceDocumentsHeader unloaded
+; --------------------------------------------------------------------------------
+  JOBVERSION 1
+  
+  SOURCE #JHfixOrphanedSourceDocumentsHeader
+    #static void JHfixOrphanedSourceDocumentsHeader(Args _args)
+    #{
+    #    SourceDocumentLine sline;
+    #    SysDictTable table;
+    #    PurchTable header;
+    #    PurchLine purchline;
+    #    PurchId purchId = "PO003156";
+    #    boolean fix;
+    #    Common rec;
+    #    int fieldId, found, notfound;
+    #
+    #
+    #    if (purchId)
+    #    {
+    #        while select purchLine where purchLine.PurchId == purchId
+    #        {
+    #            while select forUpdate sline where sline.ParentSourceDocumentLine == purchLine.SourceDocumentLine
+    #            {
+    #                table = new SysDictTable(sline.SourceRelationType);
+    #                rec = table.makeRecord();
+    #                fieldId = fieldName2id(sline.SourceRelationType, "SourceDocumentLine");
+    #                select rec where rec.(fieldId) == sline.RecId;
+    #
+    #                if (rec.RecId)
+    #                {
+    #                    info(strFmt("Record Match Found %1 %2", table.name(),rec.caption()));
+    #                    found++;
+    #                }
+    #                else
+    #                {
+    #                    ttsBegin;
+    #                    sline.doDelete();
+    #                    ttsCommit;
+    #                    info(strFmt("Orphan Found %1", table.name()));
+    #                    notfound++;
+    #
+    #                }
+    #
+    #            }
+    #            info(strFmt("Found %1", found));
+    #            info(strFmt("Orphans found and deleted %1",notfound));
+    #            found = 0;
+    #            notfound = 0;
+    #        }
+    #    }
+    #}
+  ENDSOURCE
+  PROPERTIES
+    Origin              #{EED40DDF-4AFB-452C-B6D7-29B7B65FF1FF}
+  ENDPROPERTIES
+  
+
+***Element: END
